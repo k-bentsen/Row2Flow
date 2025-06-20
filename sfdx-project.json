@@ -1,0 +1,19 @@
+{
+  "packageDirectories": [
+    {
+      "path": "row2flow",
+      "default": true,
+      "package": "Row2Flow",
+      "versionName": "ver 0.1.2",
+      "versionNumber": "0.1.0.NEXT",
+      "versionDescription": ""
+    }
+  ],
+  "name": "Row2Flow",
+  "namespace": "",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "64.0",
+  "packageAliases": {
+    "Row2Flow": "0Hoam0000001tC9CAI"
+  }
+}
