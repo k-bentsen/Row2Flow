@@ -19,27 +19,27 @@ Setting up a Row2Flow "action" consists of configuring 2 custom metadata types: 
 First, create your configuration with top level details such as Flow API Name, source type, source identifier, etc.
     ![configSetup](images/configSetup.png)
 
-1. Enter a user friendly readable label for this Row2Flow action; you can auto-complete the API Name or change it yourself. **Note** this API Name will be important as it is used to identify this action for invocation
-2. Set the Flow API Name of your target flow for this action ![flowAPI](images/flowAPI.png)
-3. Choose your source type; current options are **Report** **List View** and **SOQL**
-4. Set your batch size - this will determine how many flow invocations will occur per batch chunk. IE if you have a report with 100 records and a batch size of 5, then the Batch Apex will execute in 20 chunks, each chunk running your flow 5 times.
-5. Post Row2Flow action exectuion settings
+1. Label & Name: Enter a user friendly readable label for this Row2Flow action; you can auto-complete the API Name or change it yourself. **Note** this API Name will be important as it is used to identify this action for invocation
+2. Flow API: Set the Flow API Name of your target flow for this action ![flowAPI](images/flowAPI.png)
+3. Source Type: Choose your source type; current options are **Report**, **List View**, and **SOQL**
+4. Batch Size: Set your batch size - this will determine how many flow invocations will occur per batch chunk. IE if you have a report with 100 records and a batch size of 5, then the Batch Apex will execute in 20 chunks, each chunk running your flow 5 times.
+5. Generate Run Results Details: Post Row2Flow action exectuion settings
     - Generate a "Row2Flow Results" sObject record with basic information about the run![row2FlowResult](images/row2flowResult.png)
     - Generate a text file that attaches to the results recovered to provide row level status of success or failure, and if failure, the associated error message
-6. Fill out this section if **Report** option was chosen in (3)
+6. Report Details: Fill out this section if **Report** option was chosen in (3)
     - A unique column header field on the report is required. This can be the record Id field or other unique field. **Note** it is recommended to verify the field API for the unique column header by using the [print report columns utility](README.md#print-report-columns).
     - The report Id\
          ![reportIdFromURL](images/reportIdFromUrl.png)  
          or API Name\
          ![reportAPIUniqueName](images/reportAPIUniqueName.png)
 
-7. Fill out if **SOQL** option was chosen in (3) - the value of this field should start with the source sObject API and any filter conditions; SELECT fields can be omitted as they will automatically prepended to the query string based on the source values from the children mapping records.\
+7. SOQL Details: Fill out if **SOQL** option was chosen in (3) - the value of this field should start with the source sObject API and any filter conditions; SELECT fields can be omitted as they will automatically prepended to the query string based on the source values from the children mapping records.\
     ![soqlExample](images/soqlExample.png)
 
-8. Fill out if **List View** option was chosen in (3)\
+8. List View Details: Fill out if **List View** option was chosen in (3)\
    ![listViewAPI](images/listViewAPI.png)
 
-9. Active toggle if the Row2Flow action should be invocable or not.
+9. Active: Active toggle if the Row2Flow action should be invocable or not.
 
 ### Row 2 Flow Mapping
 Next, create your mappings of row source data values to target inputs of your flow.
@@ -52,16 +52,20 @@ Next, create your mappings of row source data values to target inputs of your fl
 5. Choose the source row field API name. For SOQL and List View, this should almost always be the field API; for Report, many standard fields have non-intuitive API names, but you can use the [print report columns utility](README.md#print-report-columns) utility method to confirm 
 6. Set your target flow variable; this **must** be set to "Available for input" in the varibale's options.\
     ![flowInputVarOption](images/flowInputVarOption.png)
+7. Active toggle if the mapping should occur or not when the parent configuration is run.
+
+Below is what a sample set of mappings could look like:\
+    ![mappingSamples](images/mappingSamples.png)
 
 ## Execution
-With your config and mapping records created, you can run it ad-hoc by executing the below code snippet in execute anonymous, ensuring to set the ```configAPIName``` variable to the same exact value from step (2) in the [configuration record setup](README.md#row-2-flow-configuration).
+With your config and mapping records created, you can run it ad-hoc by executing the below code snippet in execute anonymous, ensuring to set the ```configAPIName``` variable to the same exact value from step (1) in the [configuration record setup](README.md#row-2-flow-configuration).
 ```
 String configAPIName = '<your config record API name goes here>';
 Row2FlowInvocable.Input inp = new Row2FlowInvocable.Input();
 inp.configName = configAPIName;
 Row2FlowInvocable.run(new List<Row2FlowInvocable.Input>{inp});
 ```
-To run on a scheduled, create a scheduled flow (a) with the target object as "Row 2 Flow Configuration" custom metadata type and filter conditions **Custom Metadata Record Name** = same exact value from step (2) in the [configuration record setup](README.md#row-2-flow-configuration). Add a single action element(b) using "Row2FlowInvocable"(c) and passing the triggering record to the config input attribute(d).\
+To run on a schedule, create a scheduled flow (a) with the target object as "Row 2 Flow Configuration" custom metadata type and filter conditions **Custom Metadata Record Name** = same exact value from step (1) in the [configuration record setup](README.md#row-2-flow-configuration). Add a single action element(b) using "Row2FlowInvocable"(c) and passing the triggering record to the config input attribute(d).\
     a.   ![scheduledFlowConfig](images/scheduledFlowConfig.png)\
     b.   ![flowAddActionElement](images/flowAddActionElement.png)\
     c.   ![flowSearchActions](images/flowSearchActions.png)\
@@ -77,6 +81,8 @@ If you have any system or integration users tied to daily Apex test runs or CI/C
 ## Utilities
 
 ### Print Report Columns
+This outputs what will be needed for the **Source** values in mappings for report based configurations. Many fields, including standard fields, do not match the corresponding API name. For example, the record Id field for Account on a report is not ```Id``` but rather ```ACCOUNT_ID```
+
 1. Open developer console.\
    ![openDevConsole](images/openDevConsole.png)
 2. On the menu bar, click debug; select Open Execute Anonymous Window.\
