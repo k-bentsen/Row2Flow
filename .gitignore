@@ -43,4 +43,3 @@ $RECYCLE.BIN/
 **/__pycache__/
 **/.venv/
 **/venv/
-*.cls-meta.xml
